@@ -45,6 +45,8 @@ ruff rule E501                # Explain a specific rule
 ruff linter                   # List available linters
 ```
 
+See [references/basic-usage.md](references/basic-usage.md) for basic linting and formatting examples.
+
 ## Formatting Commands Rule
 
 Use these commands for formatting:
@@ -69,6 +71,8 @@ ignore = ["E501"]               # Ignore specific rules
 [tool.ruff.lint.isort]
 known-first-party = ["myproject"]
 ```
+
+See [references/configuration.md](references/configuration.md) for configuration examples.
 
 ## Migration Rules
 
@@ -95,6 +99,8 @@ isort .                       → ruff check --select I --fix .
 isort --check .               → ruff check --select I .
 isort --diff .                → ruff check --select I --diff .
 ```
+
+See [references/migration.md](references/migration.md) for migration examples.
 
 ## Workflow Order Rule
 
@@ -125,6 +131,8 @@ ruff check --fix --unsafe-fixes .         # Apply changes
 
 For detailed information, see the official documentation at https://docs.astral.sh/ruff/
 
-## Examples
+## Additional References
 
-See [references/examples.md](references/examples.md) for comprehensive usage examples and common patterns.
+- Rule-specific usage: See [references/rules.md](references/rules.md)
+- CI/CD integration: See [references/ci-cd.md](references/ci-cd.md)
+- Advanced usage: See [references/advanced.md](references/advanced.md)

@@ -31,6 +31,8 @@ ty check path/to/file.py      # Check specific file
 ty check src/                 # Check specific directory
 ```
 
+See [references/basic-checking.md](references/basic-checking.md) for basic type checking examples.
+
 ## Rule Configuration Rules
 
 Configure rule levels as needed:
@@ -49,6 +51,8 @@ Target specific Python versions and platforms:
 ty check --python-version 3.12     # Check against Python 3.12
 ty check --python-platform linux   # Target Linux platform
 ```
+
+See [references/version-targeting.md](references/version-targeting.md) for version targeting examples.
 
 ## Configuration Rule
 
@@ -71,6 +75,8 @@ exclude = ["**/migrations/**"]
 output-format = "full"
 error-on-warning = false
 ```
+
+See [references/configuration.md](references/configuration.md) for configuration examples and per-file overrides.
 
 ## Per-File Overrides Rule
 
@@ -105,6 +111,8 @@ pyright .                     → ty check
 pyright path/to/file.py       → ty check path/to/file.py
 ```
 
+See [references/migration.md](references/migration.md) for migration examples.
+
 ## Ignore Comments Rule
 
 Fix type errors instead of suppressing them. Only add ignore comments when explicitly requested by the user. Use `ty: ignore`, not `type: ignore`, and prefer rule-specific ignores:
@@ -124,6 +132,7 @@ x = undefined_var  # type: ignore
 
 For detailed information, see the official documentation at https://docs.astral.sh/ty/
 
-## Examples
+## Additional References
 
-See [references/examples.md](references/examples.md) for comprehensive usage examples and configuration patterns.
+- CI/CD integration: See [references/ci-cd.md](references/ci-cd.md)
+- Advanced configuration: See [references/advanced.md](references/advanced.md)

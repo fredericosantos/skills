@@ -36,6 +36,8 @@ uv run --with requests script.py      # Run with additional packages
 uv add --script script.py requests    # Add dependencies inline to the script
 ```
 
+See [references/script-execution.md](references/script-execution.md) for script execution examples.
+
 ### Projects Workflow
 
 **Use when:** There is a `pyproject.toml` or `uv.lock` file present.
@@ -50,6 +52,8 @@ uv run <command>          # Run commands in environment
 uv run python -c ""       # Run Python in project environment
 uv run -p 3.12 <command>  # Run with specific Python version
 ```
+
+See [references/project-setup.md](references/project-setup.md) for project setup examples.
 
 ### Tools Workflow
 
@@ -111,6 +115,8 @@ pip-sync req.txt         → uv pip sync req.txt
 virtualenv .venv         → uv venv
 ```
 
+See [references/migration.md](references/migration.md) for migration examples.
+
 ## Common Pattern Rules
 
 ### Don't Use pip in uv Projects Rule
@@ -164,6 +170,8 @@ uv run <command>
 
 For detailed information, see the official documentation at https://docs.astral.sh/uv/llms.txt
 
-## Examples
+## Additional References
 
-See [references/examples.md](references/examples.md) for comprehensive usage examples and common workflows.
+- Lockfile management: See [references/lockfiles.md](references/lockfiles.md)
+- Python version management: See [references/python-versions.md](references/python-versions.md)
+- Common workflows: See [references/workflows.md](references/workflows.md)
