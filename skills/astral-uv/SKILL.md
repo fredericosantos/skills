@@ -163,3 +163,7 @@ uv run <command>
 ## Documentation Reference
 
 For detailed information, see the official documentation at https://docs.astral.sh/uv/llms.txt
+
+## Examples
+
+See [references/examples.md](references/examples.md) for comprehensive usage examples and common workflows.

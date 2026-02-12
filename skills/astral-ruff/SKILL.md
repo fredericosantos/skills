@@ -124,3 +124,7 @@ ruff check --fix --unsafe-fixes .         # Apply changes
 ## Documentation Reference
 
 For detailed information, see the official documentation at https://docs.astral.sh/ruff/
+
+## Examples
+
+See [references/examples.md](references/examples.md) for comprehensive usage examples and common patterns.

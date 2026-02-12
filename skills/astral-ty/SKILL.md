@@ -123,3 +123,7 @@ x = undefined_var  # type: ignore
 ## Documentation Reference
 
 For detailed information, see the official documentation at https://docs.astral.sh/ty/
+
+## Examples
+
+See [references/examples.md](references/examples.md) for comprehensive usage examples and configuration patterns.
