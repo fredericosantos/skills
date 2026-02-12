@@ -1,5 +1,5 @@
 ---
-name: uv
+name: astral-uv
 description: Guide for using uv, the extremely fast Python package and project manager. Use this when working with Python projects, scripts, packages, or tools to manage dependencies, environments, and project setup with universal lockfiles for reproducible builds.
 ---
 
