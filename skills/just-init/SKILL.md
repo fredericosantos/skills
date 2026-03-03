@@ -1,8 +1,7 @@
 ---
 name: just-init
-description: >
-  Navigate Python codebases by reading __init__.py files before opening other
-  files in a package. Maintain every __init__.py as living documentation: a
+description: Navigate Python codebases by reading __init__.py files before opening other files in a package. 
+  Maintain every __init__.py as living documentation: a
   top-level docstring containing a one-line package description, a file tree
   of .py files and subdirectories, and a brief purpose for each entry.
   Use when: (1) exploring or navigating a Python codebase, (2) creating new
