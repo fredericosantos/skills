@@ -1,4 +1,7 @@
-Agent skills for AI coding agents. Install with `npx skills add fredericosantos/skills`.
+Agent skills for AI coding agents. Install with:
+```
+npx skills add fredericosantos/skills
+```
 
 - **[just-init](skills/just-init/)** - Navigate and document Python packages using `__init__.py` docstrings as living indexes.
   ```
