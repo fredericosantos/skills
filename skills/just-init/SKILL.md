@@ -1,36 +1,27 @@
 ---
 name: just-init
-description: Navigate Python codebases by reading __init__.py files before opening other files in a package. 
-  Maintain every __init__.py as living documentation: a
-  top-level docstring containing a one-line package description, a file tree
-  of .py files and subdirectories, and a brief purpose for each entry.
-  Use when: (1) exploring or navigating a Python codebase, (2) creating new
-  Python packages or modules, (3) adding, removing, or renaming files within
-  a Python package, (4) onboarding to an unfamiliar Python project.
+description: "Navigate and document Python packages using __init__.py docstrings as living indexes: read them before exploring, update them after every file change."
 ---
 
 # just-init
 
-Use `__init__.py` files as the single source of truth for understanding and
+Use `__init__.py` docstrings as the single source of truth for navigating and
 documenting Python packages.
 
-## Navigation Rule
+## Read Rule
 
-Before opening any file in a Python package, read its `__init__.py` first.
-Use the docstring to understand the package's purpose and decide which files
-to explore next. Apply this recursively — when entering a sub-package, read
-its `__init__.py` before going deeper.
+When navigating to a new directory in the codebase, first extract its
+`__init__.py` docstring to understand the package:
 
-When exploring an unfamiliar codebase, start from the top-level package
-`__init__.py` and drill down based on what each docstring describes.
+1. `grep -nE "^(\"\"\"|''')" <file> | head -2` to get the opening and closing line numbers.
+2. Read the file with those line numbers as offset (start line) and limit (number of lines).
+
+Use the docstring tree to decide which files to explore next. Apply recursively
+when entering sub-packages.
 
 ## Docstring Format
 
-Every `__init__.py` must start with a triple-quoted docstring containing:
-
-1. A one-line description of the package's purpose.
-2. A file tree listing `.py` files and subdirectories (not non-Python files).
-3. A `# comment` after each entry describing its purpose.
+Every `__init__.py` must start with a triple-quoted docstring:
 
 ```python
 """
@@ -45,54 +36,31 @@ package_name/
 ```
 
 Rules:
-- Use `├──` for all entries except the last, which uses `└──`.
-- List `.py` files first, then subdirectories, both in alphabetical order.
-- Subdirectories end with `/` and are not expanded — their own `__init__.py`
-  documents their contents.
-- Descriptions are concise: aim for under 10 words per entry.
-- The package name in the tree matches the directory name.
+- `├──` for all entries except the last (`└──`).
+- `.py` files first (alphabetical), then subdirectories (alphabetical).
+- Subdirectories end with `/` and are not expanded here.
+- Descriptions under 10 words. Package name matches the directory name.
+- Non-Python directories (data, fixtures): list with trailing `/`, no `__init__.py`.
 
-## Auto-Update Rule
+## Update Rule
 
-After any of these changes, immediately update the affected `__init__.py`:
+After any file or directory add, remove, or rename inside a package,
+immediately update the affected `__init__.py` docstring. When creating a new
+package, create `__init__.py` with its docstring first, then add other files.
 
-- **File added** — Add the new entry to the tree with a description.
-- **File removed** — Remove the entry from the tree.
-- **File renamed** — Update the entry name and description if needed.
-- **Subdirectory added** — Add the directory entry (with trailing `/`) and
-  create a new `__init__.py` inside it.
-- **Subdirectory removed** — Remove the directory entry from the parent tree.
+Propagate changes: update both the sub-package's `__init__.py` and the parent's
+if the sub-package entry changed.
 
-When a change affects a nested package, update both the sub-package's own
-`__init__.py` and the parent's `__init__.py` if the sub-package entry changed.
+**Missing docstring**: when encountering an `__init__.py` without a docstring,
+generate one from the current directory contents before proceeding.
 
-Do not wait for the user to ask — update `__init__.py` as part of every file
-operation within a Python package.
+**Outdated docstring**: if the docstring does not match actual files, update it
+to reflect reality before continuing.
 
-## New Package Rule
+## References
 
-When creating a new Python package:
-
-1. Create the directory.
-2. Create `__init__.py` as the first file.
-3. Write the docstring with the package description and initial file tree.
-4. Then create the other files.
-5. Update the tree in `__init__.py` after all files are in place.
-
-## Edge Cases
-
-- **Empty package** — The docstring contains only the description and a tree
-  with just `__init__.py`.
-- **Non-Python directories** (data, fixtures, configs) — List them in the tree
-  with a trailing `/` and a description, but do not expand their contents and
-  do not create an `__init__.py` inside them.
-- **No existing docstring** — When encountering an `__init__.py` without a
-  docstring, add one based on the current directory contents before proceeding.
-- **Conflicting docstring** — If the docstring is outdated (doesn't match
-  actual files), update it to reflect reality before continuing.
-
-## Examples
-
-See [references/examples.md](references/examples.md) for concrete patterns:
-simple flat packages, nested packages, packages with non-Python directories,
-and before/after update scenarios.
+- [Flat package](references/flat-package.md)
+- [Nested packages](references/nested-packages.md)
+- [Non-Python directories](references/non-python-dirs.md)
+- [Update: adding a file](references/update-add-file.md)
+- [Update: adding a sub-package](references/update-add-subpackage.md)
