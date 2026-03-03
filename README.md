@@ -13,11 +13,7 @@ Agent skills for AI coding agents.
 Use the Skills CLI to install skills from this repository:
 
 ```bash
-npx skills add fredericosantos/skills@just-init
-npx skills add fredericosantos/skills@astral-uv
-npx skills add fredericosantos/skills@astral-ruff
-npx skills add fredericosantos/skills@astral-ty
-npx skills add fredericosantos/skills@dotstate
+npx skills add fredericosantos/skills
 ```
 
 For more information about the Skills CLI, visit [skills.sh](https://skills.sh).
