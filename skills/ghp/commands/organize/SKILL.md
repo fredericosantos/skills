@@ -1,5 +1,5 @@
 ---
-name: ghx:organize
+name: ghp:organize
 description: Triage unorganized GitHub issues into a Project board. Scans for issues missing from the Project, presents an interactive menu to set statuses, and applies changes.
 allowed-tools:
   - Bash(gh project *)
@@ -7,7 +7,7 @@ allowed-tools:
   - Bash(bash *organize.sh*)
 ---
 
-# /ghx:organize — Triage Issues
+# /ghp:organize — Triage Issues
 
 Run `scripts/organize.sh scan` to discover issues not in the Project or missing a status.
 

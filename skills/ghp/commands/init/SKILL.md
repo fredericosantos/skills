@@ -1,5 +1,5 @@
 ---
-name: ghx:init
+name: ghp:init
 description: Start a development session on a repository. Reads project state, summarizes what's active/blocked/next, and asks whether to work on something new, continue existing work, or organize issues.
 allowed-tools:
   - Bash(gh project list)
@@ -8,7 +8,7 @@ allowed-tools:
   - Bash(gh pr list *)
 ---
 
-# /ghx:init — Session Start
+# /ghp:init — Session Start
 
 ## Auto-fetched context
 
@@ -27,4 +27,4 @@ allowed-tools:
 |---|---|
 | Work on something new | Create a new milestone/issue and start |
 | Work on existing | Pick a milestone, issue, or sub-issue to continue |
-| Organize | Run `/ghx:organize` flow |
+| Organize | Run `/ghp:organize` flow |

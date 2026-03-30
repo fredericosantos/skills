@@ -1,5 +1,5 @@
 ---
-name: ghx
+name: ghp
 description: Guide for GitHub project management via `gh` CLI — issues, PRs, milestones, sub-issues, projects, and development workflow. Use this whenever you need to interact with GitHub issues, milestones, sub-issues, PRs, or projects. Also use when planning work, creating branches, structuring issues, or starting a development session on a repository.
 allowed-tools:
   - Bash(gh project list)

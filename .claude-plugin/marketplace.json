@@ -8,9 +8,9 @@
   },
   "plugins": [
     {
-      "name": "ghx",
+      "name": "ghp",
       "description": "GitHub project management and development workflow — issues, milestones, sub-issues, projects, branching, and commit conventions.",
-      "source": "../skills/ghx",
+      "source": "../skills/ghp",
       "category": "development"
     },
     {
