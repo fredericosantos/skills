@@ -1,0 +1,10 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "fredericosantos-skills",
+  "description": "Agent skills that cater to my style",
+  "owner": {
+    "name": "Frederico Santos",
+    "email": "fredericosantos@fsx.app"
+  },
+  "plugins": []
+}
