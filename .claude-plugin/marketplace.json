@@ -10,37 +10,37 @@
     {
       "name": "ghp",
       "description": "GitHub project management and development workflow — issues, milestones, sub-issues, projects, branching, and commit conventions.",
-      "source": "../skills/ghp",
+      "source": "./skills/ghp",
       "category": "development"
     },
     {
       "name": "just-init",
       "description": "Navigate and document Python packages using __init__.py docstrings as living indexes.",
-      "source": "../skills/just-init",
+      "source": "./skills/just-init",
       "category": "development"
     },
     {
       "name": "astral-uv",
       "description": "Guide for using uv, the extremely fast Python package and project manager.",
-      "source": "../skills/astral-uv",
+      "source": "./skills/astral-uv",
       "category": "development"
     },
     {
       "name": "astral-ruff",
       "description": "Guide for using ruff, the extremely fast Python linter and formatter.",
-      "source": "../skills/astral-ruff",
+      "source": "./skills/astral-ruff",
       "category": "development"
     },
     {
       "name": "astral-ty",
       "description": "Guide for using ty, the extremely fast Python type checker and language server.",
-      "source": "../skills/astral-ty",
+      "source": "./skills/astral-ty",
       "category": "development"
     },
     {
       "name": "dotstate",
       "description": "Guide for using dotstate, a profile-based dotfile manager with GitHub sync.",
-      "source": "../skills/dotstate",
+      "source": "./skills/dotstate",
       "category": "development"
     }
   ]
