@@ -23,5 +23,9 @@ npx skills add fredericosantos/skills
   ```
   npx skills add fredericosantos/skills@dotstate
   ```
+- **[ghx](skills/ghx/)** - GitHub project management and development workflow — issues, milestones, sub-issues, projects, branching, and commit conventions. Commands: `/ghx:init`, `/ghx:organize`.
+  ```
+  npx skills add fredericosantos/skills@ghx
+  ```
 
 For more information, visit [skills.sh](https://skills.sh).
