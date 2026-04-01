@@ -195,6 +195,24 @@ The haiku subagent creates issues, sets labels/milestones, adds to Project, crea
 
 The primary agent starts working immediately after delegation, without waiting for the subagent to finish.
 
+### Syncing plans to issues
+
+After creating or updating a plan, delegate to a haiku subagent to post it to the corresponding GitHub issue. The subagent receives only the file path and the issue number — no other context:
+
+```
+Read the file at <plan-file-path> and post its contents as a comment on GitHub issue #<number>:
+
+gh issue comment <number> --body "## Plan
+
+<contents of the file>"
+```
+
+Derive the issue number from the current branch name:
+- `m7-new-eval-strategy/feat/42-batch-tree-eval` → issue #42
+- `fix/7-duplicate-fitness` → issue #7
+
+This keeps the issue as the single source of truth for what was planned and what was done.
+
 ### Milestone lifecycle
 
 - Create a milestone when planning big work
