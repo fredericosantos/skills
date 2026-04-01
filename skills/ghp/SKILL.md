@@ -1,22 +1,25 @@
 ---
 name: ghp
 description: Guide for GitHub project management via `gh` CLI — issues, PRs, milestones, sub-issues, projects, and development workflow. Use this whenever you need to interact with GitHub issues, milestones, sub-issues, PRs, or projects. Also use when planning work, creating branches, structuring issues, or starting a development session on a repository.
-allowed-tools:
-  - Bash(gh project list)
-  - Bash(gh milestone list)
-  - Bash(gh issue list *)
-  - Bash(gh pr list *)
 ---
 
-# gh-project
+# ghp — GitHub Project Management
+
+This skill provides the development workflow reference. Use these commands for specific actions:
+
+- `/ghp:init` — Start a session: read project state, summarize, and pick what to work on
+- `/ghp:work` — See in-progress issues and pick the best one to continue
+- `/ghp:wrap-issue` — Close out an issue: summarize, PR to milestone branch, close sub-issues
+- `/ghp:wrap-milestone` — Close out a milestone: summarize, PR to main, close issues
+- `/ghp:organize` — Triage unorganized issues into the Project board
 
 ## Extensions required
 
-Milestones and sub-issues have no native `gh` subcommand. Install these extensions:
+Milestones, blocking relationships, branches, and sub-issues have no native `gh` subcommand. Install these extensions:
 
 ```bash
 gh extension install valeriobelli/gh-milestone   # gh milestone list/create/edit/delete/view
-gh extension install agbiotech/gh-sub-issue      # gh sub-issue list/add/remove/reprioritize
+gh extension install jwilger/gh-issue-ext        # gh issue-ext blocking/sub/branch/show
 ```
 
 ## First-time setup
@@ -37,40 +40,9 @@ Then notify the user to configure these **built-in Project workflows** in the br
 
 Set up these Project views:
 
-- **Board** (kanban) — columns: Backlog, In Progress, Review, Done
+- **Board** (kanban) — columns: Todo, In Progress, Done
 - **Table** — filterable by milestone, label, assignee
 - **Roadmap** — milestones over time
-
-## Session start
-
-This data is fetched automatically when the skill triggers:
-
-- Projects: !`gh project list`
-- Milestones: !`gh milestone list`
-- Open issues: !`gh issue list --state open --limit 50`
-- Open PRs: !`gh pr list --state open`
-
-Review the data above, present a brief summary (what's active, what's blocked, what's next), then ask:
-
-1. **Work on something new** — create a new milestone/issue and start
-2. **Work on existing** — pick a milestone, issue, or sub-issue to continue
-3. **Organize** — triage unorganized items into the project board
-
-If no Project exists, follow First-time setup first.
-
-### Organize flow
-
-Run `scripts/organize.sh scan` to discover issues not yet in the Project or missing a status.
-
-**If more than 20 unorganized issues**: skip the interactive menu — automatically set all of them to Backlog via `organize.sh apply` and notify the user: "Added N issues to the Project as Backlog. You can reorganize specific items later." This avoids burning tokens on bulk triage.
-
-**If 20 or fewer**: use `AskUserQuestion` to let the user choose:
-
-1. First question: "Organize per milestone, per item, or skip?"
-2. If per milestone: one `AskUserQuestion` per milestone with options Backlog / In Progress / Done / Skip
-3. If per item: batch into groups (max 4 per question) with the same options
-4. Parse answers into a choices JSON: `{"42": "Backlog", "43": "In Progress"}`
-5. Run `scripts/organize.sh apply --choices '...'`
 
 ## Development workflow
 
@@ -101,7 +73,13 @@ Additional labels can be created as needed for project-specific concerns.
 
 ### Branch naming
 
-Branches follow `{tag}/{issue-number}-{description}` format. For sub-issues under a milestone, nest: `{tag}/{issue-number}-{description}/{subissue-number}-{subdescription}`.
+**Milestone branches:** `m{milestone-number}-{short-name}` — created when planning a milestone.
+
+**Issue branches under a milestone:** `m{milestone-number}-{short-name}/{tag}/{issue-number}-{description}`
+
+**Standalone issue branches (no milestone):** `{tag}/{issue-number}-{description}`
+
+**Sub-issue branches:** nest under the issue branch: `.../{subissue-number}-{subdescription}`
 
 Tags align with conventional commits and labels:
 
@@ -115,18 +93,34 @@ Tags align with conventional commits and labels:
 | `test` | `testing` | Test coverage |
 | `research` | `research` | Exploration |
 
-Examples:
+Always create branches via `gh issue-ext branch create` to link them to the issue on GitHub:
 
+```bash
+# Milestone branch (create manually, no issue to link)
+git checkout -b m7-new-eval-strategy
+
+# Issue branches under a milestone
+gh issue-ext branch create 42 --name m7-new-eval-strategy/feat/42-batch-tree-eval
+gh issue-ext branch create 43 --name m7-new-eval-strategy/feat/42-batch-tree-eval/43-fitness-function
+
+# Standalone issue branch
+gh issue-ext branch create 7 --name fix/7-duplicate-fitness
 ```
-feat/42-batch-tree-eval                          # standalone issue
-feat/42-batch-tree-eval/43-fitness-function      # sub-issue branch
-fix/7-duplicate-fitness                          # bug fix
-```
 
-### PR targeting
+### PR targeting and closing
 
-- **Milestone work (cascade):** sub-issue PRs target the parent issue branch, parent issue PR targets main. This keeps review layered and history clean.
+- **Milestone work (cascade):** sub-issue PRs target the parent issue branch, parent issue PR targets the milestone branch, milestone PR targets main.
 - **Standalone issues (flat):** PR targets main directly.
+
+PR bodies must include `closes #N` for every issue/sub-issue being completed:
+
+| PR | Target | Closes |
+|---|---|---|
+| Sub-issue branch → issue branch | Issue branch | `closes #sub-issue` |
+| Issue branch → milestone branch | Milestone branch | `closes #issue` + all completed sub-issues |
+| Milestone branch → main | main | All completed issues under the milestone |
+
+Use `/ghp:wrap-issue` and `/ghp:wrap-milestone` to automate this.
 
 ### Commit messages
 
@@ -160,14 +154,22 @@ Issues that must be resolved first: #X, #Y
 
 ### Dependencies
 
-Issues can list dependencies on other issues. Before closing an issue:
+After creating issues for a milestone, set up blocking relationships using `gh issue-ext`:
 
-1. Check that all listed dependencies are resolved (their issues are closed)
-2. If a dependency is still open, either block the close or document in a comment why the dependency is no longer required
+```bash
+gh issue-ext blocking add 43 42    # #43 is blocked by #42 (do #42 first)
+gh issue-ext blocking list 43      # show what blocks #43 and what #43 blocks
+gh issue-ext show 42               # show ALL relationships for #42
+```
+
+Before closing an issue:
+
+1. Run `gh issue-ext blocking list` to check all dependencies are resolved
+2. If a blocker is still open, either block the close or document in a comment why the dependency is no longer required
 
 ### Delegating issue creation to subagents
 
-When planning work, the primary agent (opus/sonnet) writes the issue content — title, body, labels, milestone, sub-issue relationships, and initial Project status (Backlog or In Progress). Then delegate to a haiku subagent to execute the `gh` commands:
+When planning work, the primary agent (opus/sonnet) writes the issue content — title, body, labels, milestone, sub-issue relationships, and initial Project status (Todo or In Progress). Then delegate to a haiku subagent to execute the `gh` commands:
 
 ```
 Create these issues on GitHub:
@@ -178,15 +180,18 @@ Create these issues on GitHub:
    Sub-issues:
      a. "Implement fitness function" — label: enhancement
         Body: [full body text]
-        Project status: Backlog
+        Project status: Todo
      b. "Update forward pass" — label: enhancement
         Body: [full body text]
-        Project status: Backlog
+        Project status: Todo
 
-2. Set up sub-issue relationships after creation.
+2. Create milestone branch: git checkout -b m7-new-eval-strategy
+3. Set up sub-issue relationships: gh issue-ext sub add 42 43
+4. Set up blocking relationships: gh issue-ext blocking add 43 42
+5. Create linked issue branches: gh issue-ext branch create 42 --name m7-new-eval-strategy/feat/42-batch-tree-eval
 ```
 
-The haiku subagent creates issues, sets labels/milestones, adds to Project, creates sub-issue relationships, and sets status. It does not decide what to implement — it only executes what it's told.
+The haiku subagent creates issues, sets labels/milestones, adds to Project, creates sub-issue and blocking relationships, and sets status. It does not decide what to implement — it only executes what it's told.
 
 The primary agent starts working immediately after delegation, without waiting for the subagent to finish.
 
@@ -222,13 +227,26 @@ gh milestone delete 3                    # delete milestone #3
 gh milestone view 3                      # view milestone #3
 ```
 
-### Sub-issues (extension)
+### Issue relationships (extension: gh-issue-ext)
 
 ```bash
-gh sub-issue list 71                     # list sub-issues of issue #71
-gh sub-issue add 71 --sub-issue-number 72          # add #72 as sub-issue of #71
-gh sub-issue remove 71 --sub-issue-number 72       # remove sub-issue relationship
-gh sub-issue reprioritize 71 --sub-issue-number 74 --before 72  # reorder
+# Sub-issues
+gh issue-ext sub list 42                     # list sub-issues of #42
+gh issue-ext sub add 42 43                   # add #43 as sub-issue of #42
+gh issue-ext sub remove 42 43                # remove sub-issue relationship
+gh issue-ext sub reorder 42 43 --before 44   # reorder sub-issues
+
+# Blocking
+gh issue-ext blocking add 43 42              # #43 is blocked by #42
+gh issue-ext blocking remove 43 42           # remove blocking relationship
+gh issue-ext blocking list 43                # show blockers and what #43 blocks
+
+# Branches
+gh issue-ext branch create 42 --name feat/42-desc  # create linked branch
+gh issue-ext branch list 42                  # list linked branches
+
+# All relationships at once
+gh issue-ext show 42                         # parent, sub-issues, blocking, branches
 ```
 
 ### Issues (native)

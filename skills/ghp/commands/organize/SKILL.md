@@ -13,20 +13,20 @@ Run `scripts/organize.sh scan` to discover issues not in the Project or missing 
 
 ## If more than 20 unorganized issues
 
-Skip the interactive menu. Auto-set all to Backlog:
+Skip the interactive menu. Auto-set all to Todo:
 
 ```bash
 # Build choices JSON with all issues set to "Todo"
 bash scripts/organize.sh apply --choices '{"42":"Todo","43":"Todo",...}'
 ```
 
-Notify the user: "Added N issues to the Project as Backlog. You can reorganize specific items later."
+Notify the user: "Added N issues to the Project as Todo. You can reorganize specific items later."
 
 ## If 20 or fewer
 
 Use `AskUserQuestion` to let the user choose:
 
-1. First question: "Organize per milestone, per item, or all to Backlog?"
+1. First question: "Organize per milestone, per item, or all to Todo?"
 2. If per milestone: one `AskUserQuestion` per milestone with options Todo / In Progress / Done / Skip
 3. If per item: batch into groups (max 4 per question) with the same options
 4. Parse answers into a choices JSON: `{"42": "Todo", "43": "In Progress"}`

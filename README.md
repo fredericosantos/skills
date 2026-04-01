@@ -23,7 +23,7 @@ npx skills add fredericosantos/skills
   ```
   npx skills add fredericosantos/skills@dotstate
   ```
-- **[ghp](skills/ghp/)** - GitHub project management and development workflow — issues, milestones, sub-issues, projects, branching, and commit conventions. Commands: `/ghp:init`, `/ghp:organize`.
+- **[ghp](skills/ghp/)** - GitHub project management and development workflow — issues, milestones, sub-issues, projects, branching, and commit conventions. Commands: `/ghp:init`, `/ghp:work`, `/ghp:wrap-issue`, `/ghp:wrap-milestone`, `/ghp:organize`.
   ```
   npx skills add fredericosantos/skills@ghp
   ```
