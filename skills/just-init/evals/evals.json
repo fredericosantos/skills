@@ -1,0 +1,23 @@
+{
+  "skill_name": "just-init",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to understand the Python package at /tmp/test_package. Explore it and tell me what's in there.",
+      "expected_output": "Agent should: (1) use grep to find docstring boundaries in __init__.py, (2) use Read with offset+limit to extract only the docstring, (3) NOT read the entire file, (4) describe the package structure based on the docstring tree.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Add a new file called cache.py to /tmp/test_package with a simple Cache class that stores key-value pairs in a dict. It needs get, set, and delete methods.",
+      "expected_output": "Agent should: (1) create cache.py with the Cache class, (2) automatically update /tmp/test_package/__init__.py docstring to include the new cache.py entry with a description, (3) use proper tree formatting.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I just cloned a Python project and I have no idea how it's organized. The source code is at /tmp/test_project/src/myapp/. Can you bootstrap all the __init__.py documentation for me?",
+      "expected_output": "Agent should: (1) ask which directories to manage (scoping), (2) use the just-init script in generate mode: uv run scripts/just-init.py generate <path>, (3) report what was generated, (4) mention that TODO descriptions need to be filled in.",
+      "files": []
+    }
+  ]
+}

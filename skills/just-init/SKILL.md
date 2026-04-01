@@ -10,14 +10,12 @@ documenting Python packages.
 
 ## Read Rule
 
-When navigating to a new directory in the codebase, first extract its
-`__init__.py` docstring to understand the package:
+When navigating to a new directory in the codebase, read its `__init__.py` to
+understand the package. The docstring tree tells you what's inside and where.
 
-1. `grep -nE "^(\"\"\"|''')" <file> | head -2` to get the opening and closing line numbers.
-2. Read the file with those line numbers as offset (start line) and limit (number of lines).
-
-Use the docstring tree to decide which files to explore next. Apply recursively
-when entering sub-packages.
+Subdirectory entries include `[start:end]` — the line range of that directory's
+`__init__.py` docstring. Use these as offset and limit to read only the
+docstring, not the entire file. This eliminates extra tool calls.
 
 ## Docstring Format
 
@@ -29,36 +27,39 @@ One-line description of what this package does.
 
 package_name/
 ├── __init__.py        # Package init and public exports.
+├── subpackage/        # Brief description of subpackage. [1:15]
 ├── module_a.py        # Brief description of module_a.
-├── module_b.py        # Brief description of module_b.
-└── subpackage/        # Brief description of subpackage.
+└── module_b.py        # Brief description of module_b.
+    ├── ClassA          # Does something. [10:50]
+    └── func_b          # Does something else. [52:80]
 """
 ```
 
 Rules:
 - `├──` for all entries except the last (`└──`).
-- `.py` files first (alphabetical), then subdirectories (alphabetical).
-- Subdirectories end with `/` and are not expanded here.
+- Subdirectories first (alphabetical), then `.py` files (alphabetical).
+- Subdirectories end with `/`, not expanded. `[start:end]` = their `__init__.py` docstring lines.
+- Files with 3+ public definitions get sub-entries with `description [start:end]`.
 - Descriptions under 10 words. Package name matches the directory name.
-- Non-Python directories (data, fixtures): list with trailing `/`, no `__init__.py`.
 
 ## Update Rule
 
-After any file or directory add, remove, or rename inside a package,
-immediately update the affected `__init__.py` docstring. When creating a new
-package, create `__init__.py` with its docstring first, then add other files.
+After any file or directory add, remove, or rename — update the `__init__.py`
+docstring. New package: create `__init__.py` first. Propagate changes to parent
+if a sub-package entry changed.
 
-Propagate changes: update both the sub-package's `__init__.py` and the parent's
-if the sub-package entry changed.
+Missing or outdated docstring: fix it before proceeding.
 
-**Missing docstring**: when encountering an `__init__.py` without a docstring,
-generate one from the current directory contents before proceeding.
+## Automation
 
-**Outdated docstring**: if the docstring does not match actual files, update it
-to reflect reality before continuing.
+`uv run scripts/just-init.py <generate|verify|update> <path>` — see
+[automation](references/automation.md) for modes, options, and hook setup.
 
 ## References
 
+- [Scoping](references/scoping.md) — when to apply, what to skip
+- [Automation](references/automation.md) — script modes and Claude Code hook
+- [Line index](references/line-index.md) — line-range sub-entry details
 - [Flat package](references/flat-package.md)
 - [Nested packages](references/nested-packages.md)
 - [Non-Python directories](references/non-python-dirs.md)
