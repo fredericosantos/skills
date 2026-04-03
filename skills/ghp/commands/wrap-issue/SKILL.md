@@ -14,16 +14,18 @@ allowed-tools:
 ## Flow
 
 1. **Identify the issue.** If not specified, infer from the current branch name. The branch naming convention encodes the issue number:
-   - Milestone issue: `m7-new-eval-strategy/feat/42-batch-tree-eval` → issue #42
-   - Standalone: `fix/7-duplicate-fitness` → issue #7
+   - Milestone issue: `m7/42-batch-tree-eval` → issue #42
+   - Sub-issue: `m7/42/43-fitness-function` → issue #43
+   - Standalone: `7-duplicate-fitness` → issue #7
 
 2. **Check sub-issues.** Run `gh issue-ext sub list <issue>` to find sub-issues. Verify all are closed or ready to close. If any are still open, ask the user whether to close them or stop.
 
 3. **Check blockers.** Run `gh issue-ext blocking list <issue>` to confirm no unresolved blockers remain.
 
 4. **Determine the target branch** from the current branch name:
-   - If branch starts with `m{number}-` → extract the milestone branch prefix (e.g. `m7-new-eval-strategy`) and PR targets that
-   - If no milestone prefix → PR targets main
+   - Sub-issue branch `m7/42/43-...` → PR targets the parent issue branch `m7/42-...`
+   - Issue branch `m7/42-...` → PR targets the milestone branch `m7-{name}`
+   - Standalone branch → PR targets main
 
 5. **Set issue status to Review** in the Project using `gh pm move <issue> --status review` (signals "work complete, PR open for review"). The built-in "Item closed" workflow auto-moves to Done when the PR merges and closes the issue.
 
@@ -48,4 +50,18 @@ allowed-tools:
    PR: #N"
    ```
 
-8. **Notify the user** with the PR URL and a summary of what was closed.
+8. **Clean up branches.** After the PR is created, ask the user via `AskUserQuestion` what to do with the branch:
+
+   | Option | Action |
+   |---|---|
+   | Keep | Leave the branch as-is |
+   | Delete local only | `git branch -d <branch>` |
+   | Delete remote only | `git push origin --delete <branch>` |
+   | Delete both | Delete local and remote |
+
+   If there are sub-issue branches that were merged into this branch, ask about each one separately. Switch to the target branch before deleting:
+   ```bash
+   git checkout <target-branch>
+   ```
+
+9. **Notify the user** with the PR URL and a summary of what was closed.

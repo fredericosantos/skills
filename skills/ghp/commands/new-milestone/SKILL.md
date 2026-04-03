@@ -1,17 +1,14 @@
 ---
 name: ghp:new-milestone
-description: Create a new milestone with issues, branches, and project tracking in one flow. Plans the work, creates the milestone and branch, then delegates issue creation to a haiku subagent.
+description: Create a new milestone with issues, branches, and project tracking in one flow. Plans the work with the user, fills in a YAML plan, and runs a script to create everything on GitHub.
 allowed-tools:
-  - Bash(gh milestone *)
-  - Bash(gh issue *)
-  - Bash(gh pm *)
+  - Bash(python skills/ghp/scripts/create-milestone.py *)
   - Bash(git checkout *)
-  - Bash(git push *)
 ---
 
 # /ghp:new-milestone — Create a New Milestone
 
-Creates a milestone, its branch, plans issues, and delegates creation to a haiku subagent — all in one flow.
+Plans the work with the user, writes a YAML plan file, and runs `create-milestone.py` to create the milestone, issues, sub-issues, branches, blocking relationships, and project statuses — all in one script call.
 
 ## Flow
 
@@ -20,19 +17,7 @@ Creates a milestone, its branch, plans issues, and delegates creation to a haiku
    - Brief description of the goal
    - Whether to plan issues now or just create the milestone
 
-2. **Create the milestone:**
-   ```bash
-   gh milestone create --title "Milestone {N} - {Title}"
-   ```
-   The milestone number `{N}` is the number GitHub assigns on creation.
-
-3. **Create the milestone branch** and push it:
-   ```bash
-   git checkout -b m{N}-{short-name}
-   git push -u origin m{N}-{short-name}
-   ```
-
-4. **Plan issues with the user.** Discuss the work breakdown:
+2. **Plan issues with the user.** Discuss the work breakdown:
    - What issues are needed (features, fixes, tests, docs)
    - Which issues have sub-issues
    - Blocking relationships between issues
@@ -40,39 +25,34 @@ Creates a milestone, its branch, plans issues, and delegates creation to a haiku
 
    Write the full issue content — title, body (using the issue template from the main ghp skill), labels, and relationships.
 
-5. **Delegate to haiku subagent.** Send a single prompt with all the work:
+3. **Fill in the YAML plan.** Read the template at `skills/ghp/assets/milestone-template.yml` and create a filled-in copy (e.g. `plan.yml` in the repo root or a temp location). Each issue and sub-issue gets a local `id` (integer) used only within the YAML to express `blocked_by` relationships — the script maps these to real GitHub issue numbers.
 
-   ```
-   Create these issues on GitHub for repo OWNER/REPO:
-
-   1. Issue: "{title}" — label: {label}, milestone: "Milestone {N} - {Title}"
-      Body: [full body text]
-      Sub-issues:
-        a. "{sub-title}" — label: {label}
-           Body: [full body text]
-
-   2. Set up sub-issue relationships: gh issue-ext sub add {parent} {child}
-   3. Set up blocking relationships: gh issue-ext blocking add {blocked} {blocker}
-   4. Create linked issue branches:
-      gh issue-ext branch create {number} --name m{N}-{short-name}/{tag}/{number}-{desc}
-   5. Set project status:
-      gh pm move {number} --status in_progress  (first issue to work on)
-      gh pm move {number} --status todo          (unblocked issues)
-      gh pm move {number} --status backlog       (blocked issues)
+4. **Run the script:**
+   ```bash
+   python skills/ghp/scripts/create-milestone.py plan.yml
    ```
 
-   The primary agent starts working immediately after delegation, without waiting for the subagent to finish.
+   The script handles everything:
+   - Creates the milestone with `Milestone {N} - {Title}` naming
+   - Creates and pushes the milestone branch `m{N}-{slug}`
+   - Creates all issues and sub-issues as separate GitHub issues
+   - Links sub-issues via `gh issue-ext sub add`
+   - Sets blocking relationships via `gh issue-ext blocking add`
+   - Creates linked branches via `gh issue-ext branch create`
+   - Sets project statuses via `gh pm move`
+   - Prints a summary with the local-to-GitHub ID mapping
 
-6. **Create TaskList** from the planned issues. Sub-issues first, parent issues last:
+5. **Create TaskList** from the script output. Sub-issues first, parent issues last:
    ```
    TaskCreate: "#{child} — {child title}"
    TaskCreate: "#{parent} — {parent title} (parent — wrap up when sub-issues done)"
    ```
 
-7. **Start working.** Check out the first issue's branch and begin implementation.
+6. **Start working.** Check out the first issue's branch and begin implementation.
 
 ## Notes
 
-- The haiku subagent only executes — it does not decide what to implement
 - Issue bodies follow the template: Summary, Changes Required, Dependencies, Acceptance Criteria
 - Status assignment: first issue → In Progress, unblocked → Todo, blocked → Backlog
+- The YAML template is at `skills/ghp/assets/milestone-template.yml`
+- The script is at `skills/ghp/scripts/create-milestone.py`

@@ -86,25 +86,13 @@ Additional labels can be created as needed for project-specific concerns.
 
 ### Branch naming
 
-**Milestone branches:** `m{milestone-number}-{short-name}` — created when planning a milestone.
+**Milestone branches:** `m{N}-{short-name}` — created when planning a milestone.
 
-**Issue branches under a milestone:** `m{milestone-number}-{short-name}/{tag}/{issue-number}-{description}`
+**Issue branches:** `m{N}/{issue-number}-{description}` — uses `m{N}/` prefix (not the full milestone branch name) to avoid git ref conflicts.
 
-**Standalone issue branches (no milestone):** `{tag}/{issue-number}-{description}`
+**Sub-issue branches:** `m{N}/{issue-number}/{sub-issue-number}-{description}`
 
-**Sub-issue branches:** nest under the issue branch: `.../{subissue-number}-{subdescription}`
-
-Tags align with conventional commits and labels:
-
-| Tag | Label | Use |
-|---|---|---|
-| `feat` | `enhancement` | New feature |
-| `fix` | `bug` | Bug fix |
-| `refactor` | — | Code restructuring |
-| `perf` | `performance` | Optimization |
-| `docs` | `documentation` | Documentation |
-| `test` | `testing` | Test coverage |
-| `research` | `research` | Exploration |
+**Standalone issue branches (no milestone):** `{issue-number}-{description}`
 
 Always create branches via `gh issue-ext branch create` to link them to the issue on GitHub:
 
@@ -112,12 +100,14 @@ Always create branches via `gh issue-ext branch create` to link them to the issu
 # Milestone branch (create manually, no issue to link)
 git checkout -b m7-new-eval-strategy
 
-# Issue branches under a milestone
-gh issue-ext branch create 42 --name m7-new-eval-strategy/feat/42-batch-tree-eval
-gh issue-ext branch create 43 --name m7-new-eval-strategy/feat/42-batch-tree-eval/43-fitness-function
+# Issue branch under a milestone
+gh issue-ext branch create 42 --name m7/42-batch-tree-eval
 
-# Standalone issue branch
-gh issue-ext branch create 7 --name fix/7-duplicate-fitness
+# Sub-issue branch under an issue
+gh issue-ext branch create 43 --name m7/42/43-fitness-function
+
+# Standalone issue branch (no milestone)
+gh issue-ext branch create 7 --name 7-duplicate-fitness
 ```
 
 ### Task list on branch creation
@@ -194,27 +184,17 @@ Before closing an issue:
 1. Run `gh issue-ext blocking list` to check all dependencies are resolved
 2. If a blocker is still open, either block the close or document in a comment why the dependency is no longer required
 
-### Delegating issue creation to subagents
+### Automating issue creation
 
-When planning work, the primary agent (opus/sonnet) writes the issue content — title, body, labels, milestone, sub-issue relationships, and initial Project status. Then delegate to a haiku subagent to execute the `gh` commands:
+When planning work, the primary agent writes a YAML plan file describing all issues, sub-issues, labels, blocking relationships, and statuses. Then runs the `create-milestone.py` script to create everything on GitHub in one call.
 
-```
-Create these issues on GitHub:
+1. Read the template at `skills/ghp/assets/milestone-template.yml`
+2. Fill in the issues with local integer IDs (used only for `blocked_by` references within the YAML)
+3. Run: `python skills/ghp/scripts/create-milestone.py plan.yml`
 
-1. Issue: "Batch tree evaluation" — label: enhancement, milestone: "Milestone 7 - New Eval Strategy"
-   Body: [full body text]
-   Sub-issues:
-     a. "Implement fitness function" — label: enhancement
-        Body: [full body text]
-     b. "Update forward pass" — label: enhancement
-        Body: [full body text]
+The script creates the milestone, issues, sub-issues, branches, blocking relationships, and project statuses — mapping local IDs to real GitHub issue numbers automatically.
 
-2. Create milestone branch: git checkout -b m7-new-eval-strategy
-3. Set up sub-issue relationships: gh issue-ext sub add 42 43
-4. Set up blocking relationships: gh issue-ext blocking add 43 42
-5. Create linked issue branches: gh issue-ext branch create 42 --name m7-new-eval-strategy/feat/42-batch-tree-eval
-6. Set project status: gh pm move 42 --status in_progress && gh pm move 43 --status todo && gh pm move 44 --status todo
-```
+See `/ghp:new-milestone` for the full workflow.
 
 **Status assignment for new issues:**
 - The parent issue being worked on now → `In Progress`
