@@ -6,6 +6,7 @@ allowed-tools:
   - Bash(gh pr *)
   - Bash(gh milestone *)
   - Bash(gh issue-ext *)
+  - Bash(gh pm *)
   - Bash(git *)
 ---
 
@@ -13,9 +14,9 @@ allowed-tools:
 
 ## Flow
 
-1. **Identify the milestone.** If not specified, infer from the current branch name: `m7-new-eval-strategy` → milestone #7. Or ask the user.
+1. **Identify the milestone.** If not specified, infer from the current branch name: `m7-new-eval-strategy` → milestone #7 (`Milestone 7 - ...`). Or ask the user.
 
-2. **Check all issues.** List issues in the milestone with `gh issue list --milestone "Name" --state all`. Verify all are closed or ready to close. If any are still open, show them and ask whether to proceed or stop.
+2. **Check all issues.** List issues in the milestone with `gh issue list --milestone "Milestone 7 - Name" --state all`. Verify all are closed or in Review status. If any are still In Progress or earlier, show them and ask whether to proceed or stop.
 
 3. **Check blocking relationships.** For any still-open issues, run `gh issue-ext blocking list` to understand why they're open.
 
@@ -23,7 +24,7 @@ allowed-tools:
 
    ```bash
    gh pr create --base main \
-     --title "feat: Milestone Name" \
+     --title "feat: Milestone 7 - Name" \
      --body "## Summary
    <what this milestone achieved>
 
@@ -34,7 +35,7 @@ allowed-tools:
    closes #45
 
    ## Milestone
-   Closes milestone: Name"
+   Closes milestone: Milestone 7 - Name"
    ```
 
 5. **After PR is merged**, close the milestone:

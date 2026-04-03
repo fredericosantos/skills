@@ -5,6 +5,7 @@ allowed-tools:
   - Bash(gh issue *)
   - Bash(gh pr *)
   - Bash(gh issue-ext *)
+  - Bash(gh pm *)
   - Bash(git *)
 ---
 
@@ -24,7 +25,7 @@ allowed-tools:
    - If branch starts with `m{number}-` → extract the milestone branch prefix (e.g. `m7-new-eval-strategy`) and PR targets that
    - If no milestone prefix → PR targets main
 
-5. **Set issue status to Done** in the Project (signals "work complete, ready for review"). When the PR merges and the issue closes, it auto-leaves the board.
+5. **Set issue status to Review** in the Project using `gh pm move <issue> --status review` (signals "work complete, PR open for review"). The built-in "Item closed" workflow auto-moves to Done when the PR merges and closes the issue.
 
 6. **Create the PR.** The PR body must include `closes #<issue>` and `closes #<sub-issue>` for every completed sub-issue:
 
