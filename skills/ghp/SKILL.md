@@ -8,6 +8,7 @@ description: Guide for GitHub project management via `gh` CLI — issues, PRs, m
 This skill provides the development workflow reference. Use these commands for specific actions:
 
 - `/ghp:init` — Start a session: read project state, summarize, and pick what to work on
+- `/ghp:new-milestone` — Create a milestone with issues, branches, and project tracking in one flow
 - `/ghp:work` — See in-progress issues and pick the best one to continue
 - `/ghp:wrap-issue` — Close out an issue: summarize, PR to milestone branch, close sub-issues
 - `/ghp:wrap-milestone` — Close out a milestone: summarize, PR to main, close issues
