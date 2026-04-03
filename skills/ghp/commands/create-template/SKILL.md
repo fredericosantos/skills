@@ -17,12 +17,12 @@ Creates a new GitHub Project with the standard ghp configuration and marks it as
    - Project name (e.g. "Dev Template")
    - Owner (default: `@me`)
 
-2. **Create the project:**
+2. **Create the project** (native `gh project` — no gh-pm equivalent for project creation):
    ```bash
    gh project create --owner OWNER --title "Project Name" --format json -q '.number'
    ```
 
-3. **Replace the default Status field** with the 5-stage board. The default Status field (Todo, In Progress, Done) can't be edited — delete and recreate:
+3. **Replace the default Status field** with the 5-stage board (native `gh project` — no gh-pm equivalent for field management). The default Status field (Todo, In Progress, Done) can't be edited — delete and recreate:
    ```bash
    # Get the default Status field ID
    STATUS_ID=$(gh project field-list NUMBER --owner OWNER --format json \
@@ -51,7 +51,13 @@ Creates a new GitHub Project with the standard ghp configuration and marks it as
    gh project mark-template NUMBER --owner OWNER
    ```
 
-6. **Ensure standard labels exist** on the repo (if `--repo` was provided):
+6. **Link project and init gh-pm** (only if `--repo` was provided). This creates `.gh-pm.yml` so all `gh pm` commands work immediately:
+   ```bash
+   gh project link NUMBER --repo OWNER/REPO --owner OWNER
+   gh pm init --project "Project Name" --repo OWNER/REPO
+   ```
+
+7. **Ensure standard labels exist** on the repo (if `--repo` was provided):
    ```bash
    gh label create bug --description "Something broken" --color d73a4a --force
    gh label create enhancement --description "Improvement to existing feature" --color a2eeef --force
@@ -62,7 +68,7 @@ Creates a new GitHub Project with the standard ghp configuration and marks it as
    gh label create needs-revision --description "References outdated code, needs update" --color fbca04 --force
    ```
 
-7. **Notify the user** with:
+8. **Notify the user** with:
    - Project number and URL
    - Reminder to configure built-in Project workflows in the browser (Settings → Workflows):
      - **Auto-add** — automatically adds new issues/PRs
