@@ -1,0 +1,60 @@
+# Template for creating a milestone with issues.
+# Fill in the fields below, then run:
+#   python skills/ghp/scripts/create-milestone.py <this-file>
+
+milestone:
+  title: ""           # e.g. "New Eval Strategy" — script prepends "Milestone {N} - "
+  description: ""     # optional
+
+# Branch name slug derived from title: m{N}-{slug}
+# Override if needed:
+# branch: m7-custom-name
+
+issues:
+  - id: 1
+    title: ""
+    label: enhancement    # bug, enhancement, performance, research, documentation, testing
+    tag: feat             # feat, fix, refactor, perf, docs, test, research
+    status: in_progress   # in_progress, todo, backlog
+    body: |
+      ## Summary
+
+      ## Changes Required
+
+      ## Acceptance Criteria
+      - [ ]
+    sub_issues:
+      - id: 2
+        title: ""
+        label: enhancement
+        tag: feat
+        status: todo
+        body: |
+          ## Summary
+
+          ## Changes Required
+
+          ## Acceptance Criteria
+          - [ ]
+      - id: 3
+        title: ""
+        label: enhancement
+        tag: feat
+        status: backlog
+        blocked_by: [2]     # local IDs — script maps to GitHub numbers
+        body: |
+          ## Summary
+
+          ## Changes Required
+
+          ## Acceptance Criteria
+          - [ ]
+
+  # Standalone issue (no sub-issues):
+  # - id: 4
+  #   title: ""
+  #   label: enhancement
+  #   tag: feat
+  #   status: todo
+  #   body: |
+  #     ## Summary

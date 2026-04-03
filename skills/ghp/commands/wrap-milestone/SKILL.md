@@ -43,4 +43,15 @@ allowed-tools:
    gh milestone edit <number> --state closed
    ```
 
-6. **Notify the user** with the PR URL, list of closed issues, and confirmation that the milestone is closed.
+6. **Clean up branches.** Ask the user via `AskUserQuestion` what to do with the milestone branch:
+
+   | Option | Action |
+   |---|---|
+   | Keep | Leave the branch as-is |
+   | Delete local only | `git branch -d <branch>` |
+   | Delete remote only | `git push origin --delete <branch>` |
+   | Delete both | Delete local and remote |
+
+   Also check for any remaining issue/sub-issue branches under this milestone (`m{N}/...`) and ask about each one separately.
+
+7. **Notify the user** with the PR URL, list of closed issues, and confirmation that the milestone is closed.
