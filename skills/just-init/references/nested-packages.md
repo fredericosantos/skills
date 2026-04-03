@@ -8,10 +8,10 @@ Core authentication and authorization system.
 
 auth/
 ├── __init__.py        # Package init and public exports.
+├── backends/          # Pluggable authentication backends. [1:12]
+├── middleware/         # Request authentication middleware. [1:10]
 ├── config.py          # Auth configuration and constants.
-├── tokens.py          # JWT creation, validation, and refresh.
-├── backends/          # Pluggable authentication backends.
-└── middleware/         # Request authentication middleware.
+└── tokens.py          # JWT creation, validation, and refresh.
 """
 ```
 

@@ -21,9 +21,9 @@ HTTP client wrappers.
 
 client/
 ├── __init__.py        # Package init and default client factory.
+├── adapters/          # Transport adapters for different protocols. [1:10]
 ├── async.py           # Asynchronous HTTP client.
-├── sync.py            # Synchronous HTTP client.
-└── adapters/          # Transport adapters for different protocols.
+└── sync.py            # Synchronous HTTP client.
 """
 ```
 

@@ -12,24 +12,34 @@ This skill provides the development workflow reference. Use these commands for s
 - `/ghp:wrap-issue` — Close out an issue: summarize, PR to milestone branch, close sub-issues
 - `/ghp:wrap-milestone` — Close out a milestone: summarize, PR to main, close issues
 - `/ghp:organize` — Triage unorganized issues into the Project board
+- `/ghp:create-template` — Scaffold a Project with standard board layout and mark as template
 
 ## Extensions required
 
-Milestones, blocking relationships, branches, and sub-issues have no native `gh` subcommand. Install these extensions:
+Milestones, blocking relationships, branches, sub-issues, and project management have no native `gh` subcommand. Install these extensions:
 
 ```bash
+gh extension install yahsan2/gh-pm              # gh pm list/move/create/intake/triage/split/view
 gh extension install valeriobelli/gh-milestone   # gh milestone list/create/edit/delete/view
 gh extension install jwilger/gh-issue-ext        # gh issue-ext blocking/sub/branch/show
 ```
 
 ## First-time setup
 
-Every repository should have its issues tracked in a GitHub Project. Projects are owned by the user/org, not the repo — one Project can span multiple repos. If no Project contains issues from this repo, create and link one:
+Every repository should have its issues tracked in a GitHub Project. Initialize the `gh pm` config for the repo:
 
 ```bash
-gh project list
+gh pm init --project "Repo Name" --repo OWNER/REPO
+```
+
+This creates a `.gh-pm.yml` config file so all `gh pm` commands know the project and repo automatically — no `--owner`/`--project` flags needed.
+
+If the Project doesn't exist yet, create and link it first:
+
+```bash
 gh project create --owner OWNER --title "Repo Name"
 gh project link NUMBER --repo OWNER/REPO --owner OWNER
+gh pm init --project "Repo Name" --repo OWNER/REPO
 ```
 
 Then notify the user to configure these **built-in Project workflows** in the browser (Project → Settings → Workflows) — these cannot be set via CLI:
@@ -40,9 +50,11 @@ Then notify the user to configure these **built-in Project workflows** in the br
 
 Set up these Project views:
 
-- **Board** (kanban) — columns: Todo, In Progress, Done
+- **Board** (kanban) — columns: Backlog, Todo, In Progress, Review, Done
 - **Table** — filterable by milestone, label, assignee
 - **Roadmap** — milestones over time
+
+Use `/ghp:create-template` to scaffold a project with these columns and mark it as a reusable template.
 
 ## Development workflow
 
@@ -50,7 +62,7 @@ Set up these Project views:
 
 | Size | Structure | Example |
 |---|---|---|
-| Big — advances the project in a major way, multiple moving parts | **Milestone** with issues, each issue has sub-issues | "New tree evaluation strategy" |
+| Big — advances the project in a major way, multiple moving parts | **Milestone** with issues, each issue has sub-issues | "Milestone 7 - New Eval Strategy" |
 | Small — single feature, fix, or change | **Issue** with sub-issues if needed | "Fix duplicate fitness values" |
 
 Rule of thumb: if you can't see a 3-layer breakdown (milestone → issues → sub-issues), it's just an issue.
@@ -106,6 +118,20 @@ gh issue-ext branch create 43 --name m7-new-eval-strategy/feat/42-batch-tree-eva
 # Standalone issue branch
 gh issue-ext branch create 7 --name fix/7-duplicate-fitness
 ```
+
+### Task list on branch creation
+
+When creating a linked branch for an issue that has sub-issues, create a `TaskList` to track progress. Sub-issues become the first tasks, and the parent issue is the final task:
+
+```
+# For issue #42 with sub-issues #43, #44, #45:
+TaskCreate: "#43 — Implement fitness function"
+TaskCreate: "#44 — Update forward pass"
+TaskCreate: "#45 — Add benchmarks"
+TaskCreate: "#42 — Batch tree evaluation (parent — wrap up when sub-issues done)"
+```
+
+Mark each task as `completed` when the corresponding sub-issue is closed. The parent task is completed last via `/ghp:wrap-issue`.
 
 ### PR targeting and closing
 
@@ -169,27 +195,30 @@ Before closing an issue:
 
 ### Delegating issue creation to subagents
 
-When planning work, the primary agent (opus/sonnet) writes the issue content — title, body, labels, milestone, sub-issue relationships, and initial Project status (Todo or In Progress). Then delegate to a haiku subagent to execute the `gh` commands:
+When planning work, the primary agent (opus/sonnet) writes the issue content — title, body, labels, milestone, sub-issue relationships, and initial Project status. Then delegate to a haiku subagent to execute the `gh` commands:
 
 ```
 Create these issues on GitHub:
 
-1. Issue: "Batch tree evaluation" — label: enhancement, milestone: "New Eval Strategy"
+1. Issue: "Batch tree evaluation" — label: enhancement, milestone: "Milestone 7 - New Eval Strategy"
    Body: [full body text]
-   Project status: In Progress
    Sub-issues:
      a. "Implement fitness function" — label: enhancement
         Body: [full body text]
-        Project status: Todo
      b. "Update forward pass" — label: enhancement
         Body: [full body text]
-        Project status: Todo
 
 2. Create milestone branch: git checkout -b m7-new-eval-strategy
 3. Set up sub-issue relationships: gh issue-ext sub add 42 43
 4. Set up blocking relationships: gh issue-ext blocking add 43 42
 5. Create linked issue branches: gh issue-ext branch create 42 --name m7-new-eval-strategy/feat/42-batch-tree-eval
+6. Set project status: gh pm move 42 --status in_progress && gh pm move 43 --status todo && gh pm move 44 --status todo
 ```
+
+**Status assignment for new issues:**
+- The parent issue being worked on now → `In Progress`
+- Sub-issues not yet started → `Todo`
+- Issues with unresolved blockers → `Backlog`
 
 The haiku subagent creates issues, sets labels/milestones, adds to Project, creates sub-issue and blocking relationships, and sets status. It does not decide what to implement — it only executes what it's told.
 
@@ -213,9 +242,21 @@ Derive the issue number from the current branch name:
 
 This keeps the issue as the single source of truth for what was planned and what was done.
 
+### Milestone naming
+
+Milestones follow a standardized naming convention:
+
+```
+Milestone {number} - {Title}
+```
+
+Examples: `Milestone 7 - New Eval Strategy`, `Milestone 12 - Float Constants`
+
+The milestone number matches the GitHub milestone number assigned on creation.
+
 ### Milestone lifecycle
 
-- Create a milestone when planning big work
+- Create a milestone when planning big work: `gh milestone create` with name `Milestone {N} - {Title}`
 - All issues under it should be added to the milestone and the Project
 - When the last issue under a milestone is closed, check and close the milestone
 - Close stale milestones whose issues reference outdated code — tag remaining issues `needs-revision`
@@ -234,7 +275,27 @@ You can also proactively ask the user if they want to audit stale issues when yo
 
 All commands support `--repo owner/repo` or `-R owner/repo` for cross-repo operations.
 
-### Milestones (extension)
+### Project management (extension: gh-pm)
+
+```bash
+gh pm init                                   # interactive setup, creates .gh-pm.yml
+gh pm list                                   # list all project issues
+gh pm list --status in_progress              # filter by status
+gh pm list --priority p0,p1                  # filter by priority
+gh pm list --assignee @me                    # filter by assignee
+gh pm view 42                                # view issue with project metadata
+gh pm move 42 --status in_progress           # change status
+gh pm move 42 --priority high                # change priority
+gh pm create --title "Fix bug" --status todo # create issue and add to project
+gh pm intake                                 # list issues not in project
+gh pm intake --dry-run                       # preview without adding
+gh pm split 123 --from=body                  # split issue body checklist into sub-issues
+gh pm split 123 "Task 1" "Task 2"            # split from arguments
+gh pm triage name                            # run triage rules from .gh-pm.yml
+gh pm triage --query="status:backlog" --apply="status:in_progress"  # ad-hoc triage
+```
+
+### Milestones (extension: gh-milestone)
 
 ```bash
 gh milestone list                        # list open milestones
@@ -270,7 +331,7 @@ gh issue-ext show 42                         # parent, sub-issues, blocking, bra
 ### Issues (native)
 
 ```bash
-gh issue list --milestone "v2.0" --state all
+gh issue list --milestone "Milestone 7 - New Eval Strategy" --state all
 gh issue view 13 --json body -q .body
 gh issue close 16 --comment "Stale" --reason "not planned"
 ```
@@ -282,11 +343,10 @@ gh pr list --state all
 gh pr view 42 --json comments,reviews -q '.comments[].body'
 ```
 
-### Projects (native)
+### Projects (native — only for initial setup)
 
 ```bash
 gh project list                          # defaults to --owner @me
 gh project create --owner OWNER --title "Title"
 gh project link 4 --repo OWNER/REPO --owner OWNER
-gh project delete 2 --owner OWNER
 ```
