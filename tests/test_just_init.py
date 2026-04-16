@@ -10,7 +10,9 @@ from pathlib import Path
 import pytest
 
 # Load the script module despite the hyphenated filename
-SCRIPT_PATH = Path(__file__).parent.parent / "skills" / "just-init" / "scripts" / "just-init.py"
+SCRIPT_PATH = (
+    Path(__file__).parent.parent / "skills" / "just-init" / "skills" / "just-init" / "scripts" / "just-init.py"
+)
 spec = importlib.util.spec_from_file_location("just_init", SCRIPT_PATH)
 ji = importlib.util.module_from_spec(spec)
 sys.modules["just_init"] = ji
