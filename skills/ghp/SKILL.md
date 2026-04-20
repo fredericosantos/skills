@@ -90,11 +90,13 @@ Additional labels can be created as needed for project-specific concerns.
 
 **Milestone branches:** `m{N}-{short-name}` — created when planning a milestone.
 
-**Issue branches:** `m{N}/{issue-number}-{description}` — uses `m{N}/` prefix (not the full milestone branch name) to avoid git ref conflicts.
+**Issue branches:** `m{N}/{issue-number}-{short-name}` — uses `m{N}/` prefix (not the full milestone branch name) to avoid git ref conflicts.
 
-**Sub-issue branches:** `m{N}/{issue-number}/{sub-issue-number}-{description}`
+**Sub-issue branches:** `m{N}/{issue-number}/{sub-issue-number}-{short-name}`
 
-**Standalone issue branches (no milestone):** `{issue-number}-{description}`
+**Standalone issue branches (no milestone):** `{issue-number}-{short-name}`
+
+**Keep `{short-name}` to 3–4 words max** (e.g. `batch-tree-eval`, not `implement-batch-tree-evaluation-for-forward-pass`). The slug is derived from the issue title via `slugify()`, so write issue titles tersely — long titles produce unwieldy branch names that are painful to type, tab-complete, and read in `git log`.
 
 Always create branches via `gh issue-ext branch create` to link them to the issue on GitHub:
 
