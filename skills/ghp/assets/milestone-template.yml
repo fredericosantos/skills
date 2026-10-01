@@ -1,6 +1,7 @@
 # Template for creating a milestone with issues.
-# Fill in the fields below, then run:
-#   python skills/ghp/scripts/create-milestone.py <this-file>
+# Copy it outside the repo, fill in the fields below, then run:
+#   uv run ${CLAUDE_PLUGIN_ROOT}/scripts/create-milestone.py <this-file> --dry-run
+# and the same command without --dry-run.
 
 milestone:
   title: ""           # e.g. "New Eval Strategy" — script prepends "Milestone {N} - "
@@ -13,9 +14,10 @@ milestone:
 issues:
   - id: 1
     title: ""
-    label: enhancement    # bug, enhancement, performance, research, documentation, testing
+    label: enhancement    # bug, enhancement, performance, research, documentation, testing — mapped to the repo's names
     tag: feat             # feat, fix, refactor, perf, docs, test, research
-    status: in_progress   # in_progress, todo, backlog
+    status: in_progress   # in_progress, todo, backlog, review — mapped to the repo's Status columns
+    # priority: high      # critical, high, medium, low; default: .gh-pm.yml defaults.priority
     body: |
       ## Summary
 
