@@ -1,10 +1,10 @@
 ---
 name: ghp:create-template
-description: Create a GitHub Project with the standard ghp board layout (Backlog, Todo, In Progress, Review, Done), standard labels, and mark it as a reusable template.
+description: Create a GitHub Project with the standard ghp board layout (Backlog, Todo, In Progress, Review, Done), a Priority field, and standard labels, and mark it as a reusable template.
 allowed-tools:
   - Bash(gh project *)
-  - Bash(gh label *)
   - Bash(gh pm *)
+  - Bash(uv run ${CLAUDE_PLUGIN_ROOT}/scripts/repo-setup.py*)
 ---
 
 # /ghp:create-template — Scaffold a Project Template
@@ -22,53 +22,30 @@ Creates a new GitHub Project with the standard ghp configuration and marks it as
    gh project create --owner OWNER --title "Project Name" --format json -q '.number'
    ```
 
-3. **Replace the default Status field** with the 5-stage board (native `gh project` — no gh-pm equivalent for field management). The default Status field (Todo, In Progress, Done) can't be edited — delete and recreate:
+3. **Add the standard Status columns and the Priority field.** The new project's Status field has Todo, In Progress, Done. The script adds Backlog and Review in place, keeping the existing options' ids. It also creates Priority with Critical, High, Medium, Low, which match `.gh-pm.yml`'s `defaults.priority: medium`:
    ```bash
-   # Get the default Status field ID
-   STATUS_ID=$(gh project field-list NUMBER --owner OWNER --format json \
-     -q '.fields[] | select(.name == "Status") | .id')
-
-   # Delete it
-   gh project field-delete --id "$STATUS_ID"
-
-   # Create with 5 stages
-   gh project field-create NUMBER --owner OWNER \
-     --name "Status" \
-     --data-type "SINGLE_SELECT" \
-     --single-select-options "Backlog,Todo,In Progress,Review,Done"
+   uv run ${CLAUDE_PLUGIN_ROOT}/scripts/repo-setup.py --apply --project NUMBER --owner OWNER --skip-labels
    ```
+   It's the same script `/ghp:init` runs on boards that already have items, where deleting and recreating Status would clear every item's status.
 
-4. **Create a Priority field:**
-   ```bash
-   gh project field-create NUMBER --owner OWNER \
-     --name "Priority" \
-     --data-type "SINGLE_SELECT" \
-     --single-select-options "P0 Critical,P1 High,P2 Medium,P3 Low"
-   ```
-
-5. **Mark as template:**
+4. **Mark as template:**
    ```bash
    gh project mark-template NUMBER --owner OWNER
    ```
 
-6. **Link project and init gh-pm** (only if `--repo` was provided). This creates `.gh-pm.yml` so all `gh pm` commands work immediately:
+5. **Link project and init gh-pm** (only if `--repo` was provided). This creates `.gh-pm.yml` so all `gh pm` commands work immediately. Run it after step 3, so gh-pm maps the new columns and Priority:
    ```bash
    gh project link NUMBER --repo OWNER/REPO --owner OWNER
    gh pm init --project "Project Name" --repo OWNER/REPO
    ```
 
-7. **Ensure standard labels exist** on the repo (if `--repo` was provided):
+6. **Ensure standard labels exist** on the repo (only if `--repo` was provided), from its checkout:
    ```bash
-   gh label create bug --description "Something broken" --color d73a4a --force
-   gh label create enhancement --description "Improvement to existing feature" --color a2eeef --force
-   gh label create performance --description "Optimization work" --color 0e8a16 --force
-   gh label create research --description "Exploration, no guaranteed outcome" --color 5319e7 --force
-   gh label create documentation --description "Docs, reports, session logs" --color 0075ca --force
-   gh label create testing --description "Test coverage" --color bfd4f2 --force
-   gh label create needs-revision --description "References outdated code, needs update" --color fbca04 --force
+   uv run ${CLAUDE_PLUGIN_ROOT}/scripts/repo-setup.py --apply
    ```
+   It creates only the roles the repo has no label for, so an existing `docs` fills `documentation` ("Labels" in the main ghp skill). It never recolors or redescribes an existing label.
 
-8. **Notify the user** with:
+7. **Notify the user** with:
    - Project number and URL
    - Reminder to configure built-in Project workflows in the browser (Settings → Workflows):
      - **Auto-add** — automatically adds new issues/PRs
