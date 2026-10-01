@@ -1,6 +1,6 @@
 ---
 name: ghp:fresh
-description: Bootstrap a fresh agent (new conversation or subagent) onto a specific issue or let it pick from Todo. Loads full context — issue details, sub-issues, blocking, branch, plan — and starts working immediately. Use this when spinning up a new agent or starting a fresh conversation on a known issue.
+description: Bootstrap a fresh agent (new conversation or subagent) onto a specific issue or let it pick from Todo. Loads full context — issue details, sub-issues, blocking, branch, worktree, plan record — and starts working immediately. Use this when spinning up a new agent or starting a fresh conversation on a known issue.
 allowed-tools:
   - Bash(gh issue *)
   - Bash(gh issue-ext *)
@@ -19,10 +19,9 @@ Loads all context needed to work on an issue and starts immediately. Designed fo
 1. **Fetch issue details:**
    ```bash
    gh issue view 42 --json title,body,state,labels,milestone
-   gh issue-ext show 42          # sub-issues, blocking, branches
    gh issue-ext sub list 42      # sub-issues
    gh issue-ext blocking list 42 # blockers
-   gh issue-ext branch list 42   # linked branch
+   gh issue develop --list 42    # linked branch
    ```
 
 2. **Check blockers.** If the issue has unresolved blockers, warn the user and ask whether to proceed or pick a different issue.
@@ -32,19 +31,30 @@ Loads all context needed to work on an issue and starts immediately. Designed fo
    gh pm move 42 --status in_progress
    ```
 
-4. **Check out the linked branch.** Use the branch from `gh issue-ext branch list`. If no branch exists, create one following the naming convention:
-   - Under a milestone: `m{N}/{issue}-{slug}`
-   - Standalone: `{issue}-{slug}`
+4. **Open the issue's worktree.** Follow `/ghp:work` steps 5–7: find or create the linked branch, add its worktree under `.claude/worktrees/`, and run the repo's `worktree_setup`.
 
-5. **Read plan comments.** Check for plan comments on the issue:
+5. **Read the plan record.** The newest issue comment that starts with `## Plan record` holds the approved plan and the user's decisions ("Plan record" in the main ghp skill). Older issues may have a `## Plan` comment instead.
    ```bash
-   gh issue view 42 --json comments -q '.comments[].body'
+   gh issue view 42 --json comments -q '[.comments[] | select(.body | startswith("## Plan"))] | last | .body'
    ```
-   Look for comments starting with `## Plan` — these contain implementation plans from previous sessions.
 
-6. **Create TaskList.** If the issue has sub-issues, create tasks from them (sub-issues first, parent last). If no sub-issues, create a single task for the issue.
+6. **Build the brief.** When handing the issue to a subagent, give it this brief, filled from steps 1–5. When working yourself, read it back before starting:
+   ```
+   Issue #42 — <title> (<milestone>)
+   Branch: m7/42-batch-tree-eval, from m7-new-eval-strategy
+   Worktree: <absolute path>/.claude/worktrees/42-batch-tree-eval (work only here)
+   Goal: <Summary from the issue body>
+   Plan: <the plan record's Plan, verbatim>
+   Decided already (don't re-ask): <the plan record's Decisions, verbatim>
+   Acceptance criteria: <from the issue body>
+   Sub-issues: <#N state, ...>. Blocked by: <#N or none>
+   Finish with /ghp:wrap-issue.
+   ```
+   If there is no plan record, say so in the brief rather than inventing a plan.
 
-7. **Start working.** Begin implementation based on the issue body and any plan comments.
+7. **Create TaskList.** If the issue has sub-issues, create tasks from them (sub-issues first, parent last). If no sub-issues, create a single task for the issue.
+
+8. **Start working** in the worktree, from the issue body and the plan record.
 
 ### Without issue number: `/ghp:fresh`
 
